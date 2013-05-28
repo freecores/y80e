@@ -1,8 +1,9 @@
 /*******************************************************************************************/
 /**                                                                                       **/
-/** COPYRIGHT (C) 2011, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED          **/
+/** ORIGINAL COPYRIGHT (C) 2011, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED **/
+/** COPYRIGHT (C) 2012, SERGEY BELYASHOV                                                  **/
 /**                                                                                       **/
-/** control module                                                   Rev  0.0  08/22/2011 **/
+/** control module                                                   Rev  0.0  06/13/2012 **/
 /**                                                                                       **/
 /*******************************************************************************************/
 module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl, ex_af_pls,
@@ -11,11 +12,12 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
                 page_sel, pc_sel, pflg_ctl, rd_frst, rd_nxt, reti_nxt, rreg_en, sflg_en, state_nxt,
                 tflg_ctl, tran_sel, wr_addr, wr_frst, zflg_en, carry_bit, dmar_reg, inst_reg,
                 intr_reg, page_reg, par_bit, sign_bit, state_reg, tflg_reg, vector_int,
-                xhlt_reg, zero_bit);
+                xhlt_reg, zero_bit, int_req);
 
   input         carry_bit;     /* carry flag                                               */
   input         dmar_reg;      /* latched dma request                                      */
   input         intr_reg;      /* latched interrupt request                                */
+  input         int_req;       /* interrupt request (for SLP)                              */
   input         par_bit;       /* parity flag                                              */
   input         sign_bit;      /* sign flag                                                */
   input         tflg_reg;      /* temporary flag                                           */
@@ -316,10 +318,15 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010x11100001,
           12'b010x11100011,
           12'b010x11100101,
+          12'b1xxx00xxx11x, //ld (hl),rr; ld (hl),ii; ld rr,(hl); ld ii,(hl)
           12'b1xxx0100x101,
           12'b1xxx0110x111,
           12'b1xxx01xxx00x,
+          12'b1xxx01110110, //slp
+          12'b1xxx100xx01x, //indm,indmr,inim,inimr, otdm,otdmr,otim,otimr
           12'b1xxx101xx0xx,
+          12'b1xxx10xxx100, //ind2,ind2r,ini2,ini2r, outd2,otd2r,outi2,oti2r
+          12'b1xxx1100x01x, //indrx,inirx, otdrx,otirx
           12'b010x11101001: ld_wait = 1'b0;
           default:          ld_wait = 1'b1;
           endcase
@@ -484,12 +491,17 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010111100001,
           12'b010111100011,
           12'b010111100101,
+          12'b1xxx00110100,
           12'b1xxx01000101,
           12'b1xxx01001101,
           12'b1xxx01100111,
           12'b1xxx01101111,
           12'b1xxx01xxx000,
           12'b1xxx01xxx001,
+          12'b1xxx10000011,
+          12'b1xxx10001011,
+          12'b1xxx10010011,
+          12'b1xxx10011011,
           12'b1xxx10100000,
           12'b1xxx10100001,
           12'b1xxx10100010,
@@ -573,6 +585,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010100101011,
           12'b010100xx1001,
           12'b010111111001,
+          12'b1xxx000xx100,12'b1xxx0010x100,12'b1xxx00111100,
           12'b1xxx01000100,
           12'b1xxx01000110,
           12'b1xxx01000111,
@@ -582,9 +595,11 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx01011110,
           12'b1xxx01011111,
           12'b1xxx01xx0010,
-          12'b1xxx01xx1010: state_nxt = `sIF1B;
+          12'b1xxx01xx1010,
+          12'b1xxx01xx1100: state_nxt = `sIF1B;
           12'b010011101001,
-          12'b010111101001: state_nxt = `sPCO;
+          12'b010111101001,
+          12'b1xxx01110110: state_nxt = `sPCO;
           default:          state_nxt = `sOF1B;
         endcase
       end
@@ -615,7 +630,10 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010110100110,
           12'b010110101110,
           12'b010110110110,
-          12'b010110111110: state_nxt = `sADR1;
+          12'b010110111110,
+          12'b1xxx00xxx000,
+          12'b1xxx00xxx001,
+          12'b1xxx01110100: state_nxt = `sADR1;
           12'b010000100110,
           12'b010000101110,
           12'b010100100110,
@@ -628,7 +646,8 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b000011100110,
           12'b000011101110,
           12'b000011110110,
-          12'b000011111110: state_nxt = `sIF1A;
+          12'b000011111110,
+          12'b1xxx01100100: state_nxt = `sIF1A;
           12'b000000100000: state_nxt = ( !zero_bit) ? `sPCA : `sIF1A;
           12'b000000101000: state_nxt = (  zero_bit) ? `sPCA : `sIF1A;
           12'b000000110000: state_nxt = (!carry_bit) ? `sPCA : `sIF1A;
@@ -707,6 +726,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx01000101,
           12'b1xxx01001101,
           12'b1xxx01xx1011,
+          12'b1xxx100xx011,
           12'b1xxx10100000,
           12'b1xxx10100001,
           12'b1xxx10100010,
@@ -738,6 +758,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b000011010011,
           12'b010001110xxx,
           12'b010101110xxx,
+          12'b1xxx00xxx001,
           12'b1xxx01xxx001: state_nxt = `sWR2A;
           default:          state_nxt = `sRD2A;
         endcase
@@ -749,6 +770,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx10101001,
           12'b1xxx10110001,
           12'b1xxx10111001: state_nxt = `sBLK1;
+          12'b1xxx100xx011,
           12'b1xxx10100000,
           12'b1xxx10100010,
           12'b1xxx10100011,
@@ -818,6 +840,8 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010111100001,
           12'b011001xxx110,
           12'b011101xxx110,
+          12'b1xxx00xxx000,
+          12'b1xxx0x110100,
           12'b1xxx01xxx000,
           12'b1xxx01xx1011: state_nxt = `sIF1A;
           12'b000011001001,
@@ -834,12 +858,14 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       `WR1A:                state_nxt = `sWR1B;
       `WR1B: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx1000x011,
           12'b1xxx10100000,
           12'b1xxx10100010,
           12'b1xxx10100011,
           12'b1xxx10101000,
           12'b1xxx10101010,
           12'b1xxx10101011: state_nxt = `sIF1A;
+          12'b1xxx1001x011,
           12'b1xxx10110010,
           12'b1xxx10111010,
           12'b1xxx10110011,
@@ -852,6 +878,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       `WR2A:                state_nxt = `sWR2B;
       `WR2B: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx1001x011,
           12'b1xxx10110010,
           12'b1xxx10111010,
           12'b1xxx10110011,
@@ -873,11 +900,12 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       `PCO: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
           12'b000001110110: state_nxt = `sHLTA;
+          12'b1xxx01110110: state_nxt = `sHLTA;
           default:          state_nxt = `sIF1A;
           endcase
         end
       `HLTA:                state_nxt = `sHLTB;
-      `HLTB:                state_nxt = (xhlt_reg) ? `sIF1A : `sHLTA;
+      `HLTB:                state_nxt = (xhlt_reg || (int_req && page_reg[3])) ? `sIF1A : `sHLTA;
       `IF1A:                state_nxt = `sIF1B;
       `IF1B:                state_nxt = `sDEC1;
       `INTA:                state_nxt = `sINTB;
@@ -960,8 +988,11 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
         casex ({page_reg, inst_reg}) //synopsys parallel_case
           12'b000011010011,
           12'b000011011011,
+          12'b1xxx00xxx000,
+          12'b1xxx00xxx001,
           12'b1xxx01xxx000,
           12'b1xxx01xxx001,
+          12'b1xxx01110100,
           12'b1xxx10100010,
           12'b1xxx10101010,
           12'b1xxx10110010,
@@ -986,6 +1017,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx10101001,
           12'b1xxx10110001,
           12'b1xxx10111001: tran_sel = `TRAN_IDL;
+          12'b1xxx100xx011,
           12'b1xxx10100011,
           12'b1xxx10101011,
           12'b1xxx10110011,
@@ -1050,8 +1082,10 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010111100001,
           12'b011001xxx110,
           12'b011101xxx110,
+          12'b1xxx01110100,
           12'b1xxx01xxx000,
           12'b1xxx01xx1011: tran_sel = `TRAN_IF;
+          12'b1xxx100xx011,
           12'b1xxx10100011,
           12'b1xxx10101011,
           12'b1xxx10110011,
@@ -1067,6 +1101,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
         casex ({page_reg, inst_reg}) //synopsys parallel_case
           12'b1xxx10110010,
           12'b1xxx10111010: tran_sel = (tflg_reg || intr_reg || dmar_reg) ? `TRAN_IDL : `TRAN_IO;
+          12'b1xxx1001x011,
           12'b1xxx10110000,
           12'b1xxx10111000,
           12'b1xxx10110011,
@@ -1088,6 +1123,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
         casex ({page_reg, inst_reg}) //synopsys parallel_case
           12'b1xxx10110010,
           12'b1xxx10111010: tran_sel = (tflg_reg || intr_reg || dmar_reg) ? `TRAN_IDL : `TRAN_IO;
+          12'b1xxx1001x011,
           12'b1xxx10110000,
           12'b1xxx10111000,
           12'b1xxx10110011,
@@ -1104,7 +1140,8 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       end
       `PCO: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
-          12'b000001110110: tran_sel = `TRAN_IDL;
+          12'b000001110110,
+          12'b1xxx01110110: tran_sel = `TRAN_IDL;
           default:          tran_sel = `TRAN_IF;
           endcase
         end
@@ -1118,7 +1155,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
                                        (intr_reg) ? `TRAN_IAK : `TRAN_IF;
           endcase
         end
-      `HLTB:                tran_sel = (xhlt_reg)   ? `TRAN_IF  : `TRAN_IDL;
+      `HLTB:                tran_sel = (xhlt_reg || (page_reg[3] && int_req))   ? `TRAN_IF  : `TRAN_IDL;
       `INTB:                tran_sel = (vector_int) ? `TRAN_IDL : `TRAN_MEM;
       `DMA2:                tran_sel = (dmar_reg)   ? `TRAN_IDL : `TRAN_IF;
       `RSTE:                tran_sel = `TRAN_IF;
@@ -1135,8 +1172,9 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
     casex (state_reg)
       `PCO,
       `HLTB: begin
-        casex ({page_reg, inst_reg})
+        casex ({page_reg, inst_reg}) //synopsys parallel_case
           12'b000001110110: halt_nxt = !xhlt_reg;
+          12'b1xxx01110110: halt_nxt = !int_req;
           default:          halt_nxt = 1'b0;
           endcase
         end
@@ -1175,8 +1213,9 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       `DMA2:                output_inh = dmar_reg;
       `PCO,
       `HLTB: begin
-        casex ({page_reg, inst_reg})
+        casex ({page_reg, inst_reg}) //synopsys parallel_case
           12'b000001110110: output_inh = !xhlt_reg;
+          12'b1xxx01110110: output_inh = !int_req;
           default:          output_inh = 1'b0;
           endcase
         end
@@ -1240,6 +1279,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010111101001,
           12'b1xxx01xxx000,
           12'b1xxx01xxx001,
+          12'b1xxx100xx011,
           12'b1xxx10100000,
           12'b1xxx10100001,
           12'b1xxx10100010,
@@ -1267,6 +1307,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b001001xxx110,
           12'b001010xxx110,
           12'b001011xxx110,
+          12'b1xxx00110100,
           12'b1xxx01100111,
           12'b1xxx01101111: add_sel = `ADD_HL;
           12'b010011100001,
@@ -1294,9 +1335,21 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           default:          add_sel = `ADD_PC;
         endcase
       end
-      `IF3A,
-      `ADR1,
-      `RD1A:                add_sel = `ADD_ALU;
+      `IF3A:                add_sel = `ADD_ALU;
+      `ADR1: begin
+        casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx01110100,
+          12'b1xxx00xxx000,
+          12'b1xxx00xxx001: add_sel = `ADD_ALU8;
+          default:          add_sel = `ADD_ALU;
+        endcase
+      end
+      `RD1A: begin
+        casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx100xx011: add_sel = `ADD_ALU8;
+          default:          add_sel = `ADD_ALU;
+        endcase
+      end
       `RD2A: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
           12'b000011100011,
@@ -1325,6 +1378,8 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx10111001,
           12'b1xxx10111010,
           12'b1xxx10111011: add_sel = `ADD_ALU;
+          //12'b1xxx01110100,
+          12'b1xxx100xx011: add_sel = `ADD_ALU8;
           12'b000000110100,
           12'b000000110101,
           12'b000000xxx100,
@@ -1356,6 +1411,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       end
       `WR1A: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx1000x011,
           12'b1xxx10100000,
           12'b1xxx10100010,
           12'b1xxx10100011,
@@ -1371,6 +1427,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b000011xxx100,
           12'b000011xxx111,
           12'b0001xxxxxxxx,
+          12'b1xxx100xx011,
           12'b1xxx10100000,
           12'b1xxx10100010,
           12'b1xxx10100011,
@@ -1409,6 +1466,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       end
       `IF1A:                add_sel = `ADD_PC;
       `INTA:                add_sel = (vector_int) ? `ADD_PC : `ADD_ALU;
+      `HLTA:                add_sel = `ADD_PC;
       `DMA1:                add_sel = `ADD_PC;
       default:              add_sel = `ADD_RSTVAL;
       endcase
@@ -1526,6 +1584,10 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010110110110,
           12'b010110111110,
           12'b010111101001,
+          12'b1xxx00xxx000,
+          12'b1xxx00xxx001,
+          12'b1xxx01100100,
+          12'b1xxx01110100,
           12'b1xxx01000101,
           12'b1xxx01001101,
           12'b1xxx01xx0011,
@@ -1597,6 +1659,8 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010100101011,
           12'b010100xx1001,
           12'b010111111001,
+          12'b1xxx000xx100,12'b1xxx0010x100,12'b1xxx00111100,
+          12'b1xxx01xx1100,
           12'b1xxx01000100,
           12'b1xxx01000110,
           12'b1xxx01000111,
@@ -1640,18 +1704,10 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           default:          pc_sel = `PC_NUL;
         endcase
       end
-      `WR2B: begin
-        casex ({page_reg, inst_reg}) //synopsys parallel_case
-          12'b000011001101,
-          12'b000011xxx100,
-          12'b000011xxx111,
-          12'b0001xxxxxxxx: pc_sel = `PC_LD;
-          default:          pc_sel = `PC_NUL;
-        endcase
-      end
       `RD1B,
       `RD2B: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx1001x011,
           12'b1xxx10110000,
           12'b1xxx10110001,
           12'b1xxx10110010,
@@ -1660,6 +1716,15 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx10111001,
           12'b1xxx10111010,
           12'b1xxx10111011: pc_sel = `PC_INT;
+          default:          pc_sel = `PC_NUL;
+        endcase
+      end
+      `WR2B: begin
+        casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b000011001101,
+          12'b000011xxx100,
+          12'b000011xxx111,
+          12'b0001xxxxxxxx: pc_sel = `PC_LD;
           default:          pc_sel = `PC_NUL;
         endcase
       end
@@ -1682,6 +1747,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b000011101001,
           12'b010011101001,
           12'b010111101001,
+          12'b1xxx1001x011,
           12'b1xxx10110000,
           12'b1xxx10110001,
           12'b1xxx10110010,
@@ -1698,6 +1764,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx01000101,
           12'b1xxx01001101,
           12'b0001xxxxxxxx: pc_sel = `PC_LD;
+          12'b1xxx1001x011,
           12'b1xxx10110000,
           12'b1xxx10110001,
           12'b1xxx10110010,
@@ -1805,6 +1872,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b000011xx0101,
           12'b000011xxx111,
           12'b0001xxxxxxxx: do_ctl = `DO_MSB;
+          12'b1xxx100xx011,
           12'b1xxx10100011,
           12'b1xxx10101011,
           12'b1xxx10110011,
@@ -1820,9 +1888,8 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b000011100011,
           12'b1xxx01xx0011: do_ctl = `DO_MSB;
           12'b000011010011,
-          12'b1xxx0x0xx001,
-          12'b1xxx0x10x001,
-          12'b1xxx0x111001,
+          12'b1xxx0xxxx001,
+          12'b1xxx100xx011,
           12'b1xxx10100011,
           12'b1xxx10101011,
           12'b1xxx10110011,
@@ -1903,7 +1970,8 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010110100100,
           12'b010110100101,
           12'b001001xxxxxx,
-          12'b001010xxxxxx: aluop_sel = `ALUOP_BAND;
+          12'b001010xxxxxx,
+          12'b1xxx00xxx100: aluop_sel = `ALUOP_BAND;
           12'b010000100101,
           12'b010000101101,
           12'b010100100101,
@@ -1930,6 +1998,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010010101101,
           12'b010110101100,
           12'b010110101101: aluop_sel = `ALUOP_BXOR;
+          12'b1xxx01xx1100: aluop_sel = `ALUOP_MLT;
           12'b001000010xxx: aluop_sel = `ALUOP_RL;
           12'b001000000xxx: aluop_sel = `ALUOP_RLC;
           12'b001000011xxx: aluop_sel = `ALUOP_RR;
@@ -1950,6 +2019,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b000000111000: aluop_sel = ( carry_bit) ? `ALUOP_ADS : `ALUOP_ADD;
           12'b000000010000,
           12'b000000011000: aluop_sel = `ALUOP_ADS;
+          12'b1xxx01110100,
           12'b000000110110: aluop_sel = `ALUOP_PASS;
           default:          aluop_sel = `ALUOP_ADD;
         endcase
@@ -1988,6 +2058,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       `IF3A:                aluop_sel = `ALUOP_ADS;
       `ADR1: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx00xxx00x,
           12'b000000100010,
           12'b000000101010,
           12'b000000110010,
@@ -1999,6 +2070,8 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010000101010,
           12'b010100100010,
           12'b010100101010,
+          12'b1xxx01100100,
+          12'b1xxx01110100,
           12'b1xxx01xx0011,
           12'b1xxx01xx1011: aluop_sel = `ALUOP_PASS;
           default:          aluop_sel = `ALUOP_ADS;
@@ -2014,6 +2087,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx10110001,
           12'b1xxx10111000,
           12'b1xxx10111001: aluop_sel = `ALUOP_ADD;
+          12'b1xxx100xx011,
           12'b1xxx10100010,
           12'b1xxx10101010,
           12'b1xxx10110010,
@@ -2027,6 +2101,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       end
       `RD1A: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx100xx011,
           12'b1xxx10100000,
           12'b1xxx10100010,
           12'b1xxx10100011,
@@ -2048,6 +2123,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx10101001,
           12'b1xxx10110001,
           12'b1xxx10111001: aluop_sel = `ALUOP_BSUB;
+          12'b1xxx100xx011,
           12'b1xxx10100000,
           12'b1xxx10101000,
           12'b1xxx10110000,
@@ -2073,6 +2149,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx10110010,
           12'b1xxx10111000,
           12'b1xxx10111010: aluop_sel = `ALUOP_ADD;
+          12'b1xxx100xx011: aluop_sel = `ALUOP_BADD;
           default:          aluop_sel = `ALUOP_PASS;
         endcase
       end
@@ -2106,6 +2183,8 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010111100011,
           12'b1xxx01000101,
           12'b1xxx01001101,
+          //12'b1xxx01110100,
+          12'b1xxx100xx011,
           12'b1xxx10100000,
           12'b1xxx10101000,
           12'b1xxx10110000,
@@ -2142,6 +2221,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx10101011,
           12'b1xxx10110000,
           12'b1xxx10111000: aluop_sel = `ALUOP_ADD;
+          12'b1xxx100xx011,
           12'b1xxx10110010,
           12'b1xxx10110011,
           12'b1xxx10111010,
@@ -2151,6 +2231,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       end
       `WR2A: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx100xx011,
           12'b1xxx10100000,
           12'b1xxx10100011,
           12'b1xxx10101000,
@@ -2166,6 +2247,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       end
       `WR2B: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx100xx011,
           12'b1xxx10100010,
           12'b1xxx10100011,
           12'b1xxx10101010,
@@ -2193,6 +2275,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b000010000xxx,
           12'b000011000110,
           12'b010x10000110,
+          12'b1xxx100xx011,
           12'b1xxx10100011,
           12'b1xxx10101011,
           12'b1xxx10110011,
@@ -2201,6 +2284,9 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b0x1x01xxxxxx,
           12'b010x10100110,
           12'b000011100110,
+          12'b1xxx00110100,
+          12'b1xxx00xxx000,
+          12'b1xxx011x0100,
           12'b1xxx01xxx000: aluop_sel = `ALUOP_BAND;
           12'b000010110xxx,
           12'b010x10110110,
@@ -2318,6 +2404,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       `RD2A: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
           12'b0001xxxxxxxx,
+          12'b1xxx100x1011,
           12'b1xxx10101000,
           12'b1xxx10101010,
           12'b1xxx10111000,
@@ -2357,6 +2444,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010100100010,
           12'b010111100011,
           12'b1xxx01xx0011,
+          12'b1xxx100x0011,
           12'b1xxx10100000,
           12'b1xxx10100011,
           12'b1xxx10110000,
@@ -2366,6 +2454,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       end
       `WR1B: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx1001x011,
           12'b1xxx10110000,
           12'b1xxx10110010,
           12'b1xxx10110011,
@@ -2378,6 +2467,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       `WR2A: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
           12'b0001xxxxxxxx: alua_sel = `ALUA_INT;
+          12'b1xxx100x1011,
           12'b1xxx10101000,
           12'b1xxx10101011,
           12'b1xxx10111000,
@@ -2388,6 +2478,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       end
       `WR2B: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx100xx011,
           12'b1xxx10100000,
           12'b1xxx10100010,
           12'b1xxx10100011,
@@ -2413,7 +2504,9 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       `IF1A: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
           12'b0x1x01xxxxxx: alua_sel = `ALUA_BIT;
+          12'b1xxx00xxx000,
           12'b1xxx01xxx000,
+          12'b1xxx100x1011,
           12'b1xxx10100011,
           12'b1xxx10101000,
           12'b1xxx10101010,
@@ -2422,10 +2515,12 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx10111000,
           12'b1xxx10111010,
           12'b1xxx10111011: alua_sel = `ALUA_M1;
+          12'b1xxx100x0011,
           12'b1xxx10100000,
           12'b1xxx10100010,
           12'b1xxx10110000,
           12'b1xxx10110010: alua_sel = `ALUA_ONE;
+          12'b1xxx01110100: alua_sel = `ALUA_TMP;
           default:          alua_sel = `ALUA_AA;
           endcase
         end
@@ -2563,19 +2658,29 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx01000101,
           12'b1xxx01001101: alub_sel = `ALUB_PC;
           12'b010x0110x000,
+          12'b1xxx00000100,
           12'b0010xxxxx000: alub_sel = `ALUB_BB;
           12'b010x0110x001,
+          12'b1xxx00001100,
           12'b0010xxxxx001: alub_sel = `ALUB_CC;
           12'b010x0110x010,
+          12'b1xxx00010100,
           12'b0010xxxxx010: alub_sel = `ALUB_DD;
           12'b010x0110x011,
+          12'b1xxx00011100,
           12'b0010xxxxx011: alub_sel = `ALUB_EE;
+          12'b1xxx00100100,
           12'b0010xxxxx100: alub_sel = `ALUB_HH;
+          12'b1xxx00101100,
           12'b0010xxxxx101: alub_sel = `ALUB_LL;
           12'b010x0110x111,
+          12'b1xxx00111100,
           12'b0010xxxxx111: alub_sel = `ALUB_AA;
+          12'b1xxx01001100,
           12'b1xxx0100x010: alub_sel = `ALUB_BC;
+          12'b1xxx01011100,
           12'b1xxx0101x010: alub_sel = `ALUB_DE;
+          12'b1xxx01111100,
           12'b1xxx0111x010: alub_sel = `ALUB_SP;
           12'b010011100101,
           12'b010111100101: alub_sel = `ALUB_SP;
@@ -2589,6 +2694,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       end
       `OF1B: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx01110100,
           12'b000000010000,
           12'b000000011000,
           12'b000000110110: alub_sel = `ALUB_DIN;
@@ -2634,6 +2740,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       `IF3A:                alub_sel = `ALUB_DIN;
       `ADR1: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx01110100: alub_sel = `ALUB_CC;
           12'b000011010011,
           12'b000011011011: alub_sel = `ALUB_IO;
           12'b0001xxxxxxxx: alub_sel = `ALUB_TMP;
@@ -2646,6 +2753,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b000000010010,
           12'b000000110010,
           12'b000011010011: alub_sel = `ALUB_AA;
+          12'b1xxx100xx011,
           12'b1xxx10100010,
           12'b1xxx10100011,
           12'b1xxx10101010,
@@ -2669,24 +2777,32 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b000011xxx111: alub_sel = `ALUB_PCH;
           12'b000001xxx000,
           12'b010x01110000,
+          12'b1xxx00000001,
           12'b1xxx01000001: alub_sel = `ALUB_BB;
           12'b000001xxx001,
           12'b010x01110001,
+          12'b1xxx01110100,
+          12'b1xxx00001001,
           12'b1xxx01001001: alub_sel = `ALUB_CC;
           12'b000001xxx010,
           12'b010x01110010,
+          12'b1xxx00010001,
           12'b1xxx01010001: alub_sel = `ALUB_DD;
           12'b000001xxx011,
           12'b010x01110011,
+          12'b1xxx00011001,
           12'b1xxx01011001: alub_sel = `ALUB_EE;
           12'b000001xxx100,
           12'b010x01110100,
+          12'b1xxx00100001,
           12'b1xxx01100001: alub_sel = `ALUB_HH;
           12'b000001xxx101,
           12'b010x01110101,
+          12'b1xxx00101001,
           12'b1xxx01101001: alub_sel = `ALUB_LL;
           12'b000001xxx111,
           12'b010x01110111,
+          12'b1xxx00111001,
           12'b1xxx01111001: alub_sel = `ALUB_AA;
           12'b1xxx01000011: alub_sel = `ALUB_BC;
           12'b1xxx01010011: alub_sel = `ALUB_DE;
@@ -2704,6 +2820,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx10101011,
           12'b1xxx10110011,
           12'b1xxx10111011: alub_sel = `ALUB_BC;
+          12'b1xxx100xx011: alub_sel = `ALUB_CC;
           12'b1xxx10100000,
           12'b1xxx10101000,
           12'b1xxx10110000,
@@ -2731,6 +2848,8 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx10101011,
           12'b1xxx10110011,
           12'b1xxx10111011: alub_sel = `ALUB_BC;
+          12'b1xxx01110100,
+          12'b1xxx100xx011: alub_sel = `ALUB_CC;
           12'b1xxx10100000,
           12'b1xxx10101000,
           12'b1xxx10110000,
@@ -2804,7 +2923,10 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010111100001,
           12'b011001xxx110,
           12'b011101xxx110,
+          12'b1xxx00xxx000,
+          12'b1xxx00xxx100,
           12'b1xxx01xxx000,
+          12'b1xxx01xxx100,
           12'b1xxx01xx1011: alub_sel = `ALUB_PC;
           12'b0001xxxxxxxx: alub_sel = `ALUB_PCH;
           default:          alub_sel = `ALUB_DIN;
@@ -2816,6 +2938,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx10101010,
           12'b1xxx10110010,
           12'b1xxx10111010: alub_sel = `ALUB_BC;
+          12'b1xxx100xx011,
           12'b1xxx10100000,
           12'b1xxx10100011,
           12'b1xxx10101000,
@@ -2833,6 +2956,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       end
       `WR1B: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx1001x011,
           12'b1xxx10110010,
           12'b1xxx10110011,
           12'b1xxx10111010,
@@ -2871,6 +2995,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       end
       `WR2B: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx100xx011,
           12'b1xxx10100010,
           12'b1xxx10100011,
           12'b1xxx10101010,
@@ -2896,6 +3021,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b1xxx10101011,
           12'b1xxx10110011,
           12'b1xxx10111011: alub_sel = `ALUB_BB;
+          12'b1xxx100xx011: alub_sel = `ALUB_CC;
           12'b1xxx10100000,
           12'b1xxx10101000,
           12'b1xxx10110000,
@@ -2942,6 +3068,12 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           endcase
         end
       `IF3B:                wr_addr = `WREG_TMP;
+      `ADR1: begin
+        casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx01110100: wr_addr = `WREG_TMP;
+          default:          wr_addr = `WREG_NUL;
+        endcase
+      end
       `ADR2: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
           12'b000011xxx111,
@@ -2965,6 +3097,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       end
       `RD1A: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx100xx011,
           12'b1xxx10100010,
           12'b1xxx10100011,
           12'b1xxx10101010,
@@ -2998,6 +3131,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       end
       `RD2A: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx100xx011,
           12'b1xxx10100010,
           12'b1xxx10100011,
           12'b1xxx10101010,
@@ -3019,6 +3153,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       end
       `RD2B: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx100xx011: wr_addr = `WREG_CC;
           12'b1xxx10100000,
           12'b1xxx10101000,
           12'b1xxx10110000,
@@ -3040,6 +3175,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       end
       `WR1B: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx100xx011,
           12'b1xxx10100000,
           12'b1xxx10100011,
           12'b1xxx10101000,
@@ -3060,6 +3196,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       end
       `WR2B: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx100xx011,
           12'b1xxx10100000,
           12'b1xxx10100011,
           12'b1xxx10101000,
@@ -3181,6 +3318,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b000000000001,
           12'b00000000x011,
           12'b000011000001,
+          12'b1xxx01001100,
           12'b1xxx01001011: wr_addr = `WREG_BC;
           12'b00000000110x,
           12'b000000001110,
@@ -3191,6 +3329,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           //12'b011x1xxxx001,
           12'b010x0100110x,
           12'b010x01001110,
+          12'b1xxx100xx011,
           12'b1xxx0x001000: wr_addr = `WREG_CC;
           12'b00000001010x,
           12'b000000010110,
@@ -3205,6 +3344,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b000011010001,
           12'b00000001x011,
           12'b000000010001,
+          12'b1xxx01011100,
           12'b1xxx01011011,
           12'b1xxx10100000,
           12'b1xxx10101000,
@@ -3236,6 +3376,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b000000xx1001,
           12'b000011100001,
           12'b000011100011,
+          12'b1xxx01101100,
           12'b1xxx01101011,
           12'b1xxx01xx0010,
           12'b1xxx01xx1010,
@@ -3296,6 +3437,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b00000011x011,
           12'b000011111001,
           12'b010x11111001,
+          12'b1xxx01111100,
           12'b1xxx01111011: wr_addr = `WREG_SP;
           default:          wr_addr = `WREG_NUL;
           endcase
@@ -3422,6 +3564,9 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010110111100,
           12'b010110111101,
           12'b010110111110,
+          12'b1xxx00110100,
+          12'b1xxx00xxxx00,
+          12'b1xxx011x0100,
           12'b1xxx01000100,
           12'b1xxx01010111,
           12'b1xxx01011111,
@@ -3447,6 +3592,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
       `RD1A,
       `RD2A: begin
         casex ({page_reg, inst_reg}) //synopsys parallel_case
+          12'b1xxx100xx011,
           12'b1xxx10100010,
           12'b1xxx10100011,
           12'b1xxx10101010,
@@ -3570,11 +3716,13 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010110111110,
           12'b011001xxx110,
           12'b011101xxx110,
+          12'b1xxx00xxxx00,
           12'b1xxx01000100,
           12'b1xxx01010111,
           12'b1xxx01011111,
           12'b1xxx01100111,
           12'b1xxx01101111,
+          12'b1xxx011x0100,
           12'b1xxx01xxx000,
           12'b1xxx01xx0010,
           12'b1xxx01xx1010,
@@ -3651,6 +3799,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010110110100,
           12'b010110110101,
           12'b010110110110,
+          12'b1xxx00xxx000,
           12'b1xxx01010111,
           12'b1xxx01011111,
           12'b1xxx01xxx000,
@@ -3671,7 +3820,9 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010110100101,
           12'b010110100110,
           12'b011001xxx110,
-          12'b011101xxx110: hflg_ctl = `HFLG_1;
+          12'b011101xxx110,
+          12'b1xxx00xxx100,
+          12'b1xxx011x0100: hflg_ctl = `HFLG_1;
           12'b000000111111,
           12'b000000100111,
           12'b0000000xx100,12'b00000010x100,12'b000000111100,
@@ -3809,6 +3960,9 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010110110100,
           12'b010110110101,
           12'b010110110110,
+          12'b1xxx00xxxx00,
+          12'b1xxx00110100,
+          12'b1xxx011x0100,
           12'b1xxx01100111,
           12'b1xxx01101111,
           12'b1xxx01xxx000: pflg_ctl = `PFLG_P;
@@ -3964,6 +4118,9 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010110110110,
           12'b00100xxxxxxx,
           12'b011x0xxxxxxx,
+          12'b1xxx00xxxx00,
+          12'b1xxx00110100,
+          12'b1xxx011x0100,
           12'b1xxx01010111,
           12'b1xxx01011111,
           12'b1xxx01100111,
@@ -4012,6 +4169,7 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010110111110,
           12'b1xxx01000100,
           12'b1xxx01xx0010,
+          12'b1xxx100xx011,
           12'b1xxx10100001,
           12'b1xxx10101001,
           12'b1xxx10110001,
@@ -4122,6 +4280,9 @@ module control (add_sel, alua_sel, alub_sel, aluop_sel, cflg_en, di_ctl, do_ctl,
           12'b010110111100,
           12'b010110111101,
           12'b010110111110,
+          12'b1xxx00xxxx00,
+          12'b1xxx00110100,
+          12'b1xxx011x0100,
           12'b1xxx01000100,
           12'b1xxx01xx0010,
           12'b1xxx01xx1010: cflg_en = 1'b1;

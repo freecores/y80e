@@ -50,8 +50,8 @@
 	db	029h
 
 
-	org	0ff32h
-	dw	03cceh						;ff32h
+	org	0ff2eh
+	dw	0d747h, 0d633h, 03cceh			;ff2eh
 	dw	08421h, 0edb7h, 0ff92h, 0d610h, 09678h	;ff34h
 	dw	02e00h, 00100h, 0001fh, 05a44h, 05a44h	;ff3eh
 	dw	06900h, 02e00h, 00100h, 0001fh, 0de00h	;ff48h
@@ -77,3 +77,4 @@
 	dw	05000h, 00004h, 05000h, 00003h	;fff0h
 	dw	0c202h, 00002h, 0c102h, 00001h	;fff8h
 
+	end

@@ -1,8 +1,9 @@
 /*******************************************************************************************/
 /**                                                                                       **/
-/** COPYRIGHT (C) 2011, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED          **/
+/** ORIGINAL COPYRIGHT (C) 2011, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED **/
+/** COPYRIGHT (C) 2012, SERGEY BELYASHOV                                                  **/
 /**                                                                                       **/
-/** data path module                                                  Rev 0.0  08/22/2010 **/
+/** data path module                                                  Rev 0.0  05/13/2012 **/
 /**                                                                                       **/
 /*******************************************************************************************/
 module datapath (addr_reg_in, carry_bit, dmar_reg, dout_io_reg, dout_mem_reg, inst_reg,
@@ -120,7 +121,7 @@ module datapath (addr_reg_in, carry_bit, dmar_reg, dout_io_reg, dout_mem_reg, in
   wire  [15:8] bsign_ext;                                  /* address alu b sign extend    */
   wire  [15:0] adda_in, addb_in;                           /* address alu inputs           */
   wire  [15:0] adder_out;                                  /* math result                  */
-  wire  [15:0] addr_alu, addr_hl, addr_pc, addr_sp;        /* address mux terms            */
+  wire  [15:0] addr_alu8, addr_alu, addr_hl, addr_pc, addr_sp; /* address mux terms            */
   wire  [15:0] addr_reg_in;                                /* address register input       */
   wire  [15:0] alua_in, alub_in;                           /* alu inputs                   */
   wire  [15:0] data_bus;                                   /* alu output                   */
@@ -597,7 +598,7 @@ module datapath (addr_reg_in, carry_bit, dmar_reg, dout_io_reg, dout_mem_reg, in
                  .aa_reg_out(aa_reg_out), .bit_mask(bit_mask), .daa_out(daa_out),
                  .hl_reg_out(hl_reg_out), .ii_reg(ii_reg), .int_addr(int_addr),
                  .ix_reg(ix_reg), .iy_reg(iy_reg), .pc_reg(pc_reg), .rr_reg(rr_reg),
-                 .rst_addr(rst_addr) );
+                 .rst_addr(rst_addr), .tmp_reg(tmp_reg) );
 
   alubmux BMUX ( .addb_in(addb_in), .alub_in(alub_in), .alub_reg(alub_reg),
                  .af_reg_out(af_reg_out), .bc_reg_out(bc_reg_out), .de_reg_out(de_reg_out),
@@ -621,13 +622,13 @@ module datapath (addr_reg_in, carry_bit, dmar_reg, dout_io_reg, dout_mem_reg, in
 
   alu_shft ALUSHFT ( .shft_c(shft_c), .shft_out(shft_out), .alub_in(alub_in[7:0]),
                      .aluop_reg(aluop_reg[`AOP_IDX:0]), .carry_bit(carry_bit) );
-
+  wire [15:0] mult_out = alub_in[15:8] * alub_in[7:0];
   aluout   ALUOUT  ( .cry_nxt(cry_nxt), .data_bus(data_bus), .hcar_nxt(hcar_nxt),
                      .one_nxt(one_nxt), .par_nxt(par_nxt), .sign_nxt(sign_nxt),
                      .zero_nxt(zero_nxt), .adder_c(adder_c), .adder_hc(adder_hc),
                      .adder_out(adder_out), .hi_byte(hi_byte), .logic_c(logic_c),
                      .logic_hc(logic_hc), .logic_out(logic_out), .shft_c(shft_c),
-                     .shft_out(shft_out), .unit_sel(aluop_reg[7:6]), .word_op(word_op) );
+                     .shft_out(shft_out), .mult_out(mult_out), .unit_sel(aluop_reg[7:6]), .word_op(word_op) );
 
   /*****************************************************************************************/
   /*                                                                                       */
@@ -672,18 +673,20 @@ module datapath (addr_reg_in, carry_bit, dmar_reg, dout_io_reg, dout_mem_reg, in
   always @ (aluop_reg or adda_in or addb_in or bsign_ext) begin
     case (aluop_reg)
       `ALUOP_ADS:  adda_out = adda_in + {bsign_ext[15:8], addb_in[7:0]};
+      `ALUOP_BADD,
       `ALUOP_ADD:  adda_out = adda_in + addb_in;
       `ALUOP_APAS: adda_out = adda_in;
       default:     adda_out = addb_in;
       endcase
     end
 
+  assign addr_alu8 = (addsel_reg[`AD_ALU8]) ? {8'h00, adda_out[7:0]}   : 16'h0000;
   assign addr_alu = (addsel_reg[`AD_ALU]) ? adda_out   : 16'h0000;
   assign addr_hl  = (addsel_reg[`AD_HL])  ? hl_reg_out : 16'h0000;
   assign addr_pc  = (addsel_reg[`AD_PC])  ? pc_reg     : 16'h0000;
   assign addr_sp  = (addsel_reg[`AD_SP])  ? sp_reg     : 16'h0000;
 
-  assign addr_reg_in = addr_alu | addr_hl | addr_pc | addr_sp;
+  assign addr_reg_in = addr_alu8 | addr_alu | addr_hl | addr_pc | addr_sp;
 
   endmodule
 

@@ -1,8 +1,9 @@
 /*******************************************************************************************/
 /**                                                                                       **/
-/** COPYRIGHT (C) 2011, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED          **/
+/** ORIGINAL COPYRIGHT (C) 2011, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED **/
+/** COPYRIGHT (C) 2012, SERGEY BELYASHOV                                                  **/
 /**                                                                                       **/
-/** Y80 processor test bench                                          Rev 0.0  08/20/2011 **/
+/** Y80 processor test bench                                          Rev 0.0  06/13/2012 **/
 /**                                                                                       **/
 /*******************************************************************************************/
 `timescale 1ns / 10ps                                      /* set time scale               */
@@ -393,6 +394,15 @@ module top_levl;
     $readmemh("io_opsd.vm", wrmem);
     wait (PAT_DONE);
 
+    resettask;
+    CMP_ERR_L = 16'h0000;
+    PAT_CNT   = 4'h7;
+    $readmemh("blank_xx.vm", rdmem);
+    $readmemh("blank_xx.vm", wrmem);
+    $readmemh("180_ops.vm", rdmem);
+    $readmemh("180_opsd.vm", wrmem);
+    wait (PAT_DONE);
+
     DISABLE_INT  = 0;                                      /* interrupt generator on       */
     DISABLE_WAIT = 0;                                      /* wait generator on            */
 
@@ -450,6 +460,15 @@ module top_levl;
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("io_ops.vm", rdmem);
     $readmemh("io_opsd.vm", wrmem);
+    wait (PAT_DONE);
+
+    resettask;
+    CMP_ERR_L = 16'h0000;
+    PAT_CNT   = 4'h7;
+    $readmemh("blank_xx.vm", rdmem);
+    $readmemh("blank_xx.vm", wrmem);
+    $readmemh("180_ops.vm", rdmem);
+    $readmemh("180_opsd.vm", wrmem);
     wait (PAT_DONE);
 
     DISABLE_INT  = 0;                                      /* interrupt generator on       */
@@ -510,6 +529,15 @@ module top_levl;
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("io_ops.vm", rdmem);
     $readmemh("io_opsd.vm", wrmem);
+    wait (PAT_DONE);
+
+    resettask;
+    CMP_ERR_L = 16'h0000;
+    PAT_CNT   = 4'h7;
+    $readmemh("blank_xx.vm", rdmem);
+    $readmemh("blank_xx.vm", wrmem);
+    $readmemh("180_ops.vm", rdmem);
+    $readmemh("180_opsd.vm", wrmem);
     wait (PAT_DONE);
 
     $stop;

@@ -1,8 +1,9 @@
 /*******************************************************************************************/
 /**                                                                                       **/
-/** COPYRIGHT (C) 2010, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED          **/
+/** ORIGINAL COPYRIGHT (C) 2010, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED **/
+/** COPYRIGHT (C) 2012, SERGEY BELYASHOV                                                  **/
 /**                                                                                       **/
-/** version definition file                                          Rev  0.0  03/28/2010 **/
+/** version definition file                                          Rev  0.0  06/13/2012 **/
 /**                                                                                       **/
 /*******************************************************************************************/
 

@@ -1,8 +1,9 @@
 /*******************************************************************************************/
 /**                                                                                       **/
-/** COPYRIGHT (C) 2011, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED          **/
+/** ORIGINAL COPYRIGHT (C) 2011, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED **/
+/** COPYRIGHT (C) 2012, SERGEY BELYASHOV                                                  **/
 /**                                                                                       **/
-/** processor top level                                               Rev 0.0  08/03/2011 **/
+/** processor top level                                               Rev 0.0  06/13/2012 **/
 /**                                                                                       **/
 /*******************************************************************************************/
 module y80_top (dma_ack, halt_tran, iack_tran, io_addr_out, io_data_out, io_read, io_strobe,
@@ -165,7 +166,8 @@ module y80_top (dma_ack, halt_tran, iack_tran, io_addr_out, io_data_out, io_read
                       .carry_bit(carry_bit), .dmar_reg(dmar_reg), .inst_reg(inst_reg),
                       .intr_reg(intr_reg), .page_reg(page_reg), .par_bit(par_bit),
                       .sign_bit(sign_bit), .state_reg(state_reg), .tflg_reg(tflg_reg),
-                      .vector_int(vector_int), .xhlt_reg(xhlt_reg), .zero_bit(zero_bit) );
+                      .vector_int(vector_int), .xhlt_reg(xhlt_reg), .zero_bit(zero_bit),
+                      .int_req(int_req) );
 
   /*****************************************************************************************/
   /*                                                                                       */

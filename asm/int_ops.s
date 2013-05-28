@@ -496,12 +496,32 @@
 	push	de
 	push	hl
 	exx
+
+	di
+	nop
+	slp
+	nop
+
+	ld	hl,0d740h
+	ei			;int next
+	slp			;d633h @ ff30h
+	rst	00h		;not executed
+
+	org	0d640h
+	di
 	ld	hl, 0100h
 	jp 0c0h
 
 	org	0d6feh
 	nop			;int next
 	xor	c		;d700 @ ff96h
+
+	org	0d740h
+	di
+	ld	hl,0d640h
+	nop			;nmi next
+	slp			;d747h @ ff2eh
+	rst	00h
 
 	org	0d7feh
 	nop			;nmi next
@@ -510,12 +530,12 @@
 
 	org	0d8feh
 	nop			;int next
-	adc	h		;d900 @ ff82h
+	adc	a,h		;d900 @ ff82h
 	nop
 
 	org	0d9feh
 	nop			;nmi next
-	sbc	h		;da00 @ ff78h
+	sbc	a,h		;da00 @ ff78h
 	nop
 
 	org	0dafeh
@@ -537,3 +557,5 @@
 	nop			;nmi next
 	dec	hl		;de00 @ ff50h
 	nop
+
+	end

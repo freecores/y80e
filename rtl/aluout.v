@@ -1,12 +1,14 @@
 /*******************************************************************************************/
 /**                                                                                       **/
-/** COPYRIGHT (C) 2011, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED          **/
+/** ORIGINAL COPYRIGHT (C) 2011, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED **/
+/** COPYRIGHT (C) 2012, SERGEY BELYASHOV                                                  **/
 /**                                                                                       **/
-/** alu function unit combiner module                                 Rev 0.0  07/24/2011 **/
+/** alu function unit combiner module                                 Rev 0.0  06/13/2012 **/
 /**                                                                                       **/
 /*******************************************************************************************/
 module aluout (cry_nxt, data_bus, hcar_nxt, one_nxt, par_nxt, sign_nxt, zero_nxt, adder_c,
                adder_hc, adder_out, hi_byte, logic_c, logic_hc, logic_out, shft_c, shft_out,
+               mult_out,
                unit_sel, word_op);
 
   input         adder_c;       /* math carry result                                        */
@@ -20,6 +22,7 @@ module aluout (cry_nxt, data_bus, hcar_nxt, one_nxt, par_nxt, sign_nxt, zero_nxt
   input   [7:0] shft_out;      /* shift unit result                                        */
   input  [15:0] adder_out;     /* math unit result                                         */
   input  [15:0] logic_out;     /* logic unit result                                        */
+  input  [15:0] mult_out;      /* multiplier unit result                                   */
   output        cry_nxt;       /* carry flag next                                          */
   output        hcar_nxt;      /* half-carry flag next                                     */
   output        one_nxt;       /* one flag next                                            */
@@ -44,10 +47,11 @@ module aluout (cry_nxt, data_bus, hcar_nxt, one_nxt, par_nxt, sign_nxt, zero_nxt
   /* alu function unit combination                                                         */
   /*                                                                                       */
   /*****************************************************************************************/
-  always @ (unit_sel or adder_out or logic_out or shft_out) begin
+  always @ (unit_sel or adder_out or logic_out or shft_out or mult_out) begin
     casex (unit_sel)
       2'b01:   alu_result = adder_out;
-      2'b1x:   alu_result = {8'h00, shft_out};
+      2'b10:   alu_result = {8'h00, shft_out};
+      2'b11:   alu_result = mult_out;
       default: alu_result = logic_out;
       endcase
     end

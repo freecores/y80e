@@ -1,8 +1,9 @@
 /*******************************************************************************************/
 /**                                                                                       **/
-/** COPYRIGHT (C) 2011, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED          **/
+/** ORIGINAL COPYRIGHT (C) 2011, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED **/
+/** COPYRIGHT (C) 2012, SERGEY BELYASHOV                                                  **/
 /**                                                                                       **/
-/** alu shifter module                                                Rev 0.0  07/17/2011 **/
+/** alu shifter module                                                Rev 0.0  06/13/2012 **/
 /**                                                                                       **/
 /*******************************************************************************************/
 module alu_shft (shft_c, shft_out, alub_in, aluop_reg, carry_bit);

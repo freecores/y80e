@@ -1,8 +1,9 @@
 /*******************************************************************************************/
 /**                                                                                       **/
-/** COPYRIGHT (C) 2011, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED          **/
+/** ORIGINAL COPYRIGHT (C) 2011, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED **/
+/** COPYRIGHT (C) 2012, SERGEY BELYASHOV                                                  **/
 /**                                                                                       **/
-/** define file to make the code more readable                       Rev  0.0  07/29/2011 **/
+/** define file to make the code more readable                       Rev  0.0  06/13/2012 **/
 /**                                                                                       **/
 /*******************************************************************************************/
 
@@ -41,17 +42,19 @@
   /* address bus select: add_sel                                                           */
   /*                                                                                       */
   /*****************************************************************************************/
-  `define ADCTL_IDX   3
-  `define ADD_RSTVAL  4'b0000          //Pipeline register reset value
-  `define ADD_PC      4'b0001          //Select address register from PC
-  `define ADD_HL      4'b0010          //Select address register from HL
-  `define ADD_SP      4'b0100          //Select address register from SP
-  `define ADD_ALU     4'b1000          //Select address register from ALU
+  `define ADCTL_IDX   4
+  `define ADD_RSTVAL  5'b00000         //Pipeline register reset value
+  `define ADD_PC      5'b00001         //Select address register from PC
+  `define ADD_HL      5'b00010         //Select address register from HL
+  `define ADD_SP      5'b00100         //Select address register from SP
+  `define ADD_ALU     5'b01000         //Select address register from ALU
+  `define ADD_ALU8    5'b10000         //Select address register from {8'h0, ALU[7:0]}
 
   `define AD_PC       0                //Address from PC
   `define AD_HL       1                //Address from HL
   `define AD_SP       2                //Address from SP
   `define AD_ALU      3                //Address from ALU
+  `define AD_ALU8     4                //Address from {8'h0, ALU[7:0]}
 
   /*****************************************************************************************/
   /*                                                                                       */
@@ -220,23 +223,24 @@
   /* ALU input A control: alua_sel                                                         */
   /*                                                                                       */
   /*****************************************************************************************/
-  `define ALUA_IDX 13
-  `define ALUA_RSTVAL 14'h0000         //Reset value for pipeline controls
-  `define ALUA_ZER    14'h0000         //Select 16'h0000 (default)
-  `define ALUA_ONE    14'h0001         //Select 16'h0001
-  `define ALUA_M1     14'h0002         //Select 16'hFFFF
-  `define ALUA_M2     14'h0004         //Select 16'hFFFE
-  `define ALUA_HL     14'h0008         //Select HL register
-  `define ALUA_IX     14'h0010         //Select IX register
-  `define ALUA_IY     14'h0020         //Select IY register
-  `define ALUA_PC     14'h0040         //Select PC register
-  `define ALUA_AA     14'h0080         //Select A register
-  `define ALUA_BIT    14'h0100         //Select bit select constant
-  `define ALUA_DAA    14'h0200         //Select decimal adjust constant
-  `define ALUA_II     14'h0400         //Select I register
-  `define ALUA_RR     14'h0800         //Select R register
-  `define ALUA_INT    14'h1000         //Select interrupt address
-  `define ALUA_RST    14'h2000         //Select restart address
+  `define ALUA_IDX 14
+  `define ALUA_RSTVAL 15'h0000         //Reset value for pipeline controls
+  `define ALUA_ZER    15'h0000         //Select 16'h0000 (default)
+  `define ALUA_ONE    15'h0001         //Select 16'h0001
+  `define ALUA_M1     15'h0002         //Select 16'hFFFF
+  `define ALUA_M2     15'h0004         //Select 16'hFFFE
+  `define ALUA_HL     15'h0008         //Select HL register
+  `define ALUA_IX     15'h0010         //Select IX register
+  `define ALUA_IY     15'h0020         //Select IY register
+  `define ALUA_PC     15'h0040         //Select PC register
+  `define ALUA_AA     15'h0080         //Select A register
+  `define ALUA_BIT    15'h0100         //Select bit select constant
+  `define ALUA_DAA    15'h0200         //Select decimal adjust constant
+  `define ALUA_II     15'h0400         //Select I register
+  `define ALUA_RR     15'h0800         //Select R register
+  `define ALUA_INT    15'h1000         //Select interrupt address
+  `define ALUA_TMP    15'h2000         //Select TMP register
+  `define ALUA_RST    15'h4000         //Select restart address
 
   `define AA_ONE       0               //alua one
   `define AA_M1        1               //alua -1
@@ -251,7 +255,8 @@
   `define AA_II       10               //alua ii
   `define AA_RR       11               //alua rr
   `define AA_INT      12               //alua interrupt
-  `define AA_RST      13               //alua restart
+  `define AA_TMP      13               //alua tmp
+  `define AA_RST      14               //alua restart
 
   /*****************************************************************************************/
   /*                                                                                       */
@@ -344,6 +349,7 @@
   `define ALUOP_SRL    8'b10100000     //ALU shft: shift right logical
   `define ALUOP_SRA    8'b10101000     //ALU shft: shift right arithmetic
 
+  `define ALUOP_MLT    8'b11000000     //ALU mult: 8 bit multiplication
   /*****************************************************************************************/
   /*                                                                                       */
   /* ALU operation control: 6 encoded                                                      */
@@ -387,6 +393,7 @@
   `define AOP_SRL      6'b100000       //ALU shft: shift right logical
   `define AOP_SRA      6'b101000       //ALU shft: shift right arithmetic
 
+  `define AOP_MLT      6'b000000       //ALU mult: 8 bit multiplication 
   /*****************************************************************************************/
   /*                                                                                       */
   /* machine state - pseudo-one-hot                                                        */
