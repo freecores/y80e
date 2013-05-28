@@ -97,11 +97,15 @@
 	xor	a
 	ld	hl, 02000h
 	ld	bc, 00630h
+	jp	001feh
+	org	001feh
 	otim			;read  71h @ 2000h
 				;write 71h @ 0030h 
 	push	af		;0006h @ fcd0h
 	push	bc		;0531h @ fcceh
 	push	hl		;2001h @ fccch
+	jp	002feh
+	org	002feh
 	otimr			;read  18h @ 2001h
 				;write 18h @ 0031h
 				;read  06h @ 2002h
@@ -116,12 +120,16 @@
 	push	bc		;0036h @ fcc8h
 	push	hl		;2006h @ fcc6h
 	ld	b,1
+	jp	003ffh
+	org	003ffh
 	otimr			;read  04h @ 2006h
 				;write 04h @ 0036h
 	push	af		;0046h @ fcc4h
 	push	bc		;0037h @ fcc2h
 	push	hl		;2007h @ fcc0h
 	inc	b
+	jp	004ffh
+	org	004ffh
 	otim			;read  aah @ 2007h
 				;write aah @ 0037h
 	push	af		;0042h @ fcbeh
@@ -129,11 +137,15 @@
 	push	hl		;2008h @ fcbah
 	ld	hl, 02007h
 	ld	bc, 00637h
+	jp	005feh
+	org	005feh
 	otdm			;read  aah @ 2007h
 				;write aah @ 0037h
 	push	af		;0002h @ fcb8h
 	push	bc		;0536h @ fcb6h
 	push	hl		;2006h @ fcb4h
+	jp	006feh
+	org	006feh
 	otdmr			;read  04h @ 2006h
 				;write 04h @ 0036h
 				;read  03h @ 2005h
@@ -149,12 +161,16 @@
 	push	hl		;2001h @ fcaeh
 	inc	b
 	xor	0aah
+	jp	007ffh
+	org	007ffh
 	otdmr			;read  18h @ 2001h
 				;write 18h @ 0031h
 	push	af		;aac6h @ fcach
 	push	bc		;0030h @ fcaah
 	push	hl		;2000h @ fca8h
 	inc	b
+	jp	008ffh
+	org	008ffh
 	otdm			;read  71h @ 2000h
 				;write 71h @ 0030h
 	push	af		;aa42h @ fca6h

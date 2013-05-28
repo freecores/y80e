@@ -3,7 +3,7 @@
 /** ORIGINAL COPYRIGHT (C) 2011, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED **/
 /** COPYRIGHT (C) 2012, SERGEY BELYASHOV                                                  **/
 /**                                                                                       **/
-/** Y80 processor test bench                                          Rev 0.0  06/13/2012 **/
+/** Y80e processor test bench                                         Rev 0.0  06/18/2012 **/
 /**                                                                                       **/
 /*******************************************************************************************/
 `timescale 1ns / 10ps                                      /* set time scale               */
@@ -54,7 +54,7 @@ module top_levl;
   reg         PAT_DONE;                                    /* pattern done flag            */
   reg         TRIG_INT;                                    /* assert interrupt             */
   reg         TRIG_NMI;                                    /* assert nmi                   */
-  reg   [2:0] PAT_CNT;                                     /* counter to track patterns    */
+  reg   [3:0] PAT_CNT;                                     /* counter to track patterns    */
   reg  [15:0] CMP_ERR_L;                                   /* error counter                */
 
   reg         wait_dly;                                    /* wait request state machine   */
@@ -340,7 +340,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h1;
+    PAT_CNT   = 5'h1;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("int_ops.vm",  rdmem);
@@ -351,7 +351,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h2;
+    PAT_CNT   = 5'h2;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("alu_ops.vm", rdmem);
@@ -360,7 +360,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h3;
+    PAT_CNT   = 5'h3;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("dat_mov.vm", rdmem);
@@ -369,7 +369,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h4;
+    PAT_CNT   = 5'h4;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("bit_ops.vm", rdmem);
@@ -378,7 +378,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h5;
+    PAT_CNT   = 5'h5;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("jmp_ops.vm", rdmem);
@@ -387,7 +387,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h6;
+    PAT_CNT   = 5'h6;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("io_ops.vm", rdmem);
@@ -396,11 +396,20 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h7;
+    PAT_CNT   = 5'h7;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("180_ops.vm", rdmem);
     $readmemh("180_opsd.vm", wrmem);
+    wait (PAT_DONE);
+
+    resettask;
+    CMP_ERR_L = 16'h0000;
+    PAT_CNT   = 5'h8;
+    $readmemh("blank_xx.vm", rdmem);
+    $readmemh("blank_xx.vm", wrmem);
+    $readmemh("ez8_ops.vm", rdmem);
+    $readmemh("ez8_opsd.vm", wrmem);
     wait (PAT_DONE);
 
     DISABLE_INT  = 0;                                      /* interrupt generator on       */
@@ -408,7 +417,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h1;
+    PAT_CNT   = 5'h1;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("int_ops.vm", rdmem);
@@ -419,7 +428,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h2;
+    PAT_CNT   = 5'h2;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("alu_ops.vm", rdmem);
@@ -428,7 +437,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h3;
+    PAT_CNT   = 5'h3;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("dat_mov.vm", rdmem);
@@ -437,7 +446,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h4;
+    PAT_CNT   = 5'h4;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("bit_ops.vm", rdmem);
@@ -446,7 +455,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h5;
+    PAT_CNT   = 5'h5;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("jmp_ops.vm", rdmem);
@@ -455,7 +464,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h6;
+    PAT_CNT   = 5'h6;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("io_ops.vm", rdmem);
@@ -464,11 +473,20 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h7;
+    PAT_CNT   = 5'h7;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("180_ops.vm", rdmem);
     $readmemh("180_opsd.vm", wrmem);
+    wait (PAT_DONE);
+
+    resettask;
+    CMP_ERR_L = 16'h0000;
+    PAT_CNT   = 5'h8;
+    $readmemh("blank_xx.vm", rdmem);
+    $readmemh("blank_xx.vm", wrmem);
+    $readmemh("ez8_ops.vm", rdmem);
+    $readmemh("ez8_opsd.vm", wrmem);
     wait (PAT_DONE);
 
     DISABLE_INT  = 0;                                      /* interrupt generator on       */
@@ -477,7 +495,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h1;
+    PAT_CNT   = 5'h1;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("int_ops.vm", rdmem);
@@ -488,7 +506,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h2;
+    PAT_CNT   = 5'h2;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("alu_ops.vm", rdmem);
@@ -497,7 +515,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h3;
+    PAT_CNT   = 5'h3;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("dat_mov.vm", rdmem);
@@ -506,7 +524,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h4;
+    PAT_CNT   = 5'h4;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("bit_ops.vm", rdmem);
@@ -515,7 +533,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h5;
+    PAT_CNT   = 5'h5;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("jmp_ops.vm", rdmem);
@@ -524,7 +542,7 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h6;
+    PAT_CNT   = 5'h6;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("io_ops.vm", rdmem);
@@ -533,11 +551,20 @@ module top_levl;
 
     resettask;
     CMP_ERR_L = 16'h0000;
-    PAT_CNT   = 4'h7;
+    PAT_CNT   = 5'h7;
     $readmemh("blank_xx.vm", rdmem);
     $readmemh("blank_xx.vm", wrmem);
     $readmemh("180_ops.vm", rdmem);
     $readmemh("180_opsd.vm", wrmem);
+    wait (PAT_DONE);
+
+    resettask;
+    CMP_ERR_L = 16'h0000;
+    PAT_CNT   = 5'h8;
+    $readmemh("blank_xx.vm", rdmem);
+    $readmemh("blank_xx.vm", wrmem);
+    $readmemh("ez8_ops.vm", rdmem);
+    $readmemh("ez8_opsd.vm", wrmem);
     wait (PAT_DONE);
 
     $stop;

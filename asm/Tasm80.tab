@@ -274,8 +274,8 @@ LD   (IY*),DE 1FFD 3 ZIX 4
 LD   (IY*),E 73FD 3 ZIX 1
 LD   (IY*),H 74FD 3 ZIX 1
 LD   (IY*),HL 2FFD 3 ZIX 4
-LD   (IY*),IX 3FFD 3 ZIX 4
-LD   (IY*),IY 3EFD 3 ZIX 4
+LD   (IY*),IX 3EFD 3 ZIX 4
+LD   (IY*),IY 3FFD 3 ZIX 4
 LD   (IY*),L 75FD 3 ZIX 1
 LD   (IY*),* 36FD 4 ZIX 1
 LD   (*),A   32   3 NOP 1
@@ -394,12 +394,12 @@ LD   HL,*    21   3 NOP 1
 LD   I,A     47ED 2 NOP 1
 LD   IX,(HL) 37ED 2 NOP 4
 LD   IX,(IX*) 37DD 3 ZIX 4
-LD   IX,(IY*) 37FD 3 ZIX 4
+LD   IX,(IY*) 31FD 3 ZIX 4
 LD   IX,(*)  2ADD 4 NOP 1
 LD   IX,*    21DD 4 NOP 1
 LD   IY,(HL) 36ED 2 NOP 4
 LD   IY,(IX*) 31DD 3 ZIX 4
-LD   IY,(IY*) 31FD 3 ZIX 4
+LD   IY,(IY*) 37FD 3 ZIX 4
 LD   IY,(*)  2AFD 4 NOP 1
 LD   IY,*    21FD 4 NOP 1
 LD   L,(HL)  6E   1 NOP 1
@@ -492,13 +492,13 @@ OR   YH      B4FD 2 NOP 1
 OR   YL      B5FD 2 NOP 1
 OR   *       F6   2 NOP 1
 
-OTD2 ""      ACED 2 NOP 4
+OUTD2 ""     ACED 2 NOP 4
 OTD2R ""     BCED 2 NOP 4
 OTDM ""      8BED 2 NOP 2
 OTDMR ""     9BED 2 NOP 2
 OTDR ""      BBED 2 NOP 1
 OTDRX ""     CBED 2 NOP 4
-OTI2 ""      A4ED 2 NOP 4
+OUTI2 ""     A4ED 2 NOP 4
 OTI2R ""     B4ED 2 NOP 4
 OTIM ""      83ED 2 NOP 2
 OTIMR ""     93ED 2 NOP 2

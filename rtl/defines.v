@@ -3,7 +3,7 @@
 /** ORIGINAL COPYRIGHT (C) 2011, SYSTEMYDE INTERNATIONAL CORPORATION, ALL RIGHTS RESERVED **/
 /** COPYRIGHT (C) 2012, SERGEY BELYASHOV                                                  **/
 /**                                                                                       **/
-/** define file to make the code more readable                       Rev  0.0  06/13/2012 **/
+/** define file to make the code more readable                       Rev  0.0  06/18/2012 **/
 /**                                                                                       **/
 /*******************************************************************************************/
 
@@ -288,6 +288,7 @@
   `define ALUB_DINH   13'h0101         //Select data input register high byte
   `define ALUB_IO     13'h0200         //Select i/o address
   `define ALUB_TMP    13'h0400         //Select TMP register
+  `define ALUB_TMPH   13'h0401         //Select TMP register high byte
   `define ALUB_PC     13'h1800         //Select PC register
   `define ALUB_PCH    13'h1801         //Select PC register high byte
 
