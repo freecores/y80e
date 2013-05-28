@@ -4,17 +4,23 @@
 ;*                                                                                *
 ;**********************************************************************************
 	org	01008h
-	db	0ceh, 0b3h, 0cfh, 033h, 0ceh, 033h, 033h
+	db	0ceh, 0b3h, 0cfh, 033h, 0ceh, 033h, 033h, 0cdh
 
 	org	02008h
-	db	0e1h, 078h, 0e0h, 0f8h, 0e0h, 0f8h, 078h
+	db	0e1h, 078h, 0e0h, 0f8h, 0e0h, 0f8h, 078h, 0e1h
 
 	org	02da8h
 	dw	0ffffh, 0ffffh, 0ffffh, 03872h	;2da8h
 	dw	00000h, 00000h, 0ffffh, 0ffffh	;2db0h
 
 	org	03008h
-	db	08bh, 0e2h, 08bh, 0e2h, 08ah, 0e2h, 062h, 0f7h, 02eh
+	db	08bh, 0e2h, 08bh, 0e2h, 08ah, 0e2h, 062h, 0f7h, 02eh, 08bh
+	
+;	org	04000h
+;	db	0a1h, 0b4h, 01ch, 04dh
+	
+;	org	04100h
+;	db	0e2h, 0f8h, 023h, 085h
 
 	org	078cbh
 	db	02fh, 0bfh
@@ -33,6 +39,26 @@
 	dw	01303h, 08296h, 07706h, 06701h	;fae8h
 	dw	08591h, 08485h, 01705h, 00111h	;faf0h
 	dw	00605h, 07804h, 09094h, 09984h	;faf8h
+
+;	org	0fb76h
+;	dw	0234dh
+;	dw	0f81ch, 0e2b4h, 08501h, 0a140h	;fb78h
+
+	org	0fb90h
+	dw	06030h, 0aaaah, 0dedeh, 0bcbch	;fb90h
+	dw	0a382h, 0fc93h, 07a06h, 04a06h	;fb98h
+	dw	0a282h, 0fc93h, 07a06h, 04a06h	;fba0h
+	dw	06012h, 06097h, 06002h, 06042h	;fba8h
+	dw	0ad80h, 00400h, 09a84h, 0ca84h	;fbb0h
+	dw	0af84h, 0ae80h, 0ba80h, 0ea80h	;fbb8h
+	dw	00101h, 00101h, 0aa00h, 0aa01h	;fbc0h
+	dw	0aa00h, 0aa01h, 0aa51h, 0aa51h	;fbc8h
+	dw	0aa50h, 0aa50h, 0ffffh, 0ffffh	;fbd0h
+	dw	0aa92h, 0aa42h, 0aa90h, 0aa43h	;fbd8h
+	dw	0aa93h, 0aa42h, 0aa92h, 0aa43h	;fbe0h
+	dw	00210h, 0aa94h, 02010h, 02010h	;fbe8h
+	dw	0b190h, 05815h, 0da80h, 00a01h	;fbf0h
+	dw	0b290h, 05815h, 0db80h, 00a01h	;fbf8h
 
 	org	0fc00h
 	dw	03544h, 06a44h, 0d444h, 0a845h	;fc00h
@@ -67,6 +93,13 @@
 	dw	0d484h, 06a04h, 03504h, 06a04h	;fce8h
 	dw	0d485h, 0a985h, 05304h, 0a684h	;fcf0h
 	dw	05305h, 0a985h, 0d484h, 06a04h	;fcf8h
+	
+	org	0fd24h
+	dw	0bf85h, 0bf80h	;fd24h
+	dw	0bf85h, 0bf85h, 043e1h, 043f0h	;fd28h
+	dw	03597h, 035cbh, 0b1cfh, 0b167h	;fd30h
+	dw	021f0h, 09acbh, 05867h, 0bf80h	;fd38h
+	dw	05f05h, 0af85h, 0d784h, 06b00h	;fd40h
 
 	org	0fd48h
 	dw	0ffffh, 0ffffh, 00042h, 0ff93h	;fd48h
@@ -151,4 +184,4 @@
 	dw	0ff93h, 00042h, 08057h, 07f57h	;fff0h
 	dw	00045h, 00045h, 00054h, 00045h	;fff8h
 
-
+	end

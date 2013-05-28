@@ -248,9 +248,9 @@
 				;  2fh @ 78cbh write
 	dec	(ix+10h)	;  c0h @ 78cch read
 				;  bfh @ 78cch write
-	inc	(iy+0feh)	;  f0h @ bc9eh read
+	inc	(iy-02h)	;  f0h @ bc9eh read
 				;  f1h @ bc9eh write
-	dec	(iy+0ffh)	;  80h @ bc9fh read
+	dec	(iy-01h)	;  80h @ bc9fh read
 				;  7fh @ bc9fh write
 	push	af		;7f16h @ febch
 	push	bc		;5256h @ febah
@@ -991,6 +991,53 @@
 	push	af		;6a44h @ fc02h
 	rra
 	push	af		;3544h @ fc00h
+	ld	bc, 05867h
+	ld	de, 09acbh
+	ld	hl, 021f0h
+	ld	sp, 0fd48h
+	cp	a
+	ld	a, 35h
+	sll	a
+	push	af		;6b00h @ fd46h
+	sll	a
+	push	af		;d784h @ fd44h
+	sll	a
+	push	af		;af85h @ fd42h
+	add	a,a		;set H flag
+	ld	a,0afh
+	sll	a
+	push	af		;5f05h @ fd40h
+	sll	a
+	push	af		;bf80h @ fd3eh
+	push	bc		;5867h @ fd3ch
+	push	de		;9acbh @ fd3ah
+	push	hl		;21f0h @ fd38h
+	sll	b
+	push	bc		;b167h @ fd36h
+	sll	c
+	push	bc		;b1cfh @ fd34h
+	sll	d
+	push	de		;35cbh @ fd32h
+	sll	e
+	push	de		;3597h @ fd30h
+	sll	h
+	push	hl		;43f0h @ fd2eh
+	sll	l
+	push	hl		;43e1h @ fd2ch
+	push	af		;bf85h @ fd2ah
+	cp	a
+	ld	hl, 03011h
+	sll	(hl)		;  c5h @ 3011h read
+				;  8bh @ 3011h write
+	push	af		;bf85h @ fd28h
+	cp	a
+	sll	(ix+0fh)	;  66h @ 100fh read
+				;  cdh @ 100fh write
+	push	af		;bf80h @ fd26h
+	cp	a
+	sll	(iy+0fh)	;  f0h @ 200fh read
+				;  e1h @ 200fh write
+	push	af		;bf85h @ fd24h
 	ld	sp, 0fa00h
 	pop	af		;9900h @ fa00h
 	ld	sp, 0fb00h
@@ -1068,22 +1115,211 @@
 	rrd			;  e3h @ 3010h read
 				;  2eh @ 3010h write
 	push	af		;6304h @ fac8h
-
+;--------
+	ld	hl,0aaaah
+	ld	bc,0bcbch
+	ld	de,0dedeh
+	ld	sp,0fc00h
+	ld	ix, 06030h
+	ld	iy, 0ae07h
+	ld	a, 0aah
+	adc	a,xh
+	push	af		;0a01h @ fbfeh
+	ld	a, 0aah
+	adc	a,xl
+	push	af		;db80h @ fbfch
+	ld	a, 0aah
+	adc	a,yh
+	push	af		;5815h @ fbfah
+	ld	a, 0aah
+	adc	a,yl
+	push	af		;b290h @ fbf8h
+	ld	a, 0aah
+	add	a,xh
+	push	af		;0a01h @ fbf6h
+	ld	a, 0aah
+	add	a,xl
+	push	af		;da80h @ fbf4h
+	ld	a, 0aah
+	add	a,yh
+	push	af		;5815h @ fbf2h
+	ld	a, 0aah
+	add	a,yl
+	push	af		;b190h @ fbf0h
+	ld	a,0aah
+	and	xh
+	push	af		;2010h @ fbeeh
+	ld	a,0aah
+	and	xl
+	push	af		;2010h @ fbech
+	ld	a,0aah
+	and	yh
+	push	af		;aa94h @ fbeah
+	ld	a,0aah
+	and	yl
+	push	af		;0210h @ fbe8h
+	ld	a,0aah
+	ld	ix,0101h
+	ld	iy,0101h
+	scf
+	dec	xh
+	push	af		;aa43h @ fbe6h
+	ccf
+	dec	xh
+	push	af		;aa92h @ fbe4h
+	dec	xl
+	push	af		;aa42h @ fbe2h
+	scf
+	dec	xl
+	push	af		;aa93h @ fbe0h
+	dec	yh
+	push	af		;aa43h @ fbdeh
+	dec	yh
+	ccf
+	push	af		;aa90h @ fbdch
+	dec	yl
+	push	af		;aa42h @ fbdah
+	dec	yl
+	push	af		;aa92h @ fbd8h
+	push	ix		;ffffh @ fbd6h
+	push	iy		;ffffh @ fbd4h
+	inc	xh
+	push	af		;aa50h @ fbd2h
+	inc	xl
+	push	af		;aa50h @ fbd0h
+	scf
+	inc	yh
+	push	af		;aa51h @ fbceh
+	inc	yl
+	push	af		;aa51h @ fbcch
+	inc	xh
+	push	af		;aa01h @ fbcah
+	ccf
+	inc	xl
+	push	af		;aa00h @ fbc8h
+	scf
+	inc	yh
+	push	af		;aa01h @ fbc6h
+	ccf
+	inc	yl
+	push	af		;aa00h @ fbc4h
+	push	ix		;0101h @ fbc2h
+	push	iy		;0101h @ fbc0h
+	ld	ix, 06030h
+	ld	iy, 0ae07h
+	ld	a,0aah
+	or	xh
+	push	af		;ea80h @ fbbeh
+	ld	a, 0aah
+	scf
+	or	xl
+	push	af		;ba80h @ fbbch
+	scf
+	ld	a, 0aah
+	or	yh
+	push	af		;ae80h @ fbbah
+	ld	a, 0aah
+	or	yl
+	push	af		;af84h @ fbb8h
+	ld	a, 0aah
+	xor	xh
+	push	af		;ca84h @ fbb6h
+	ld	a, 0aah
+	xor	xl
+	push	af		;9a84h @ fbb4h
+	ld	a, 0aah
+	xor	yh
+	push	af		;0400h @ fbb2h
+	ld	a, 0aah
+	xor	yl
+	push	af		;ad80h @ fbb0h
+	ld	a, 060h
+	cp	xh
+	push	af		;6042h @ fbaeh
+	cp	xl
+	push	af		;6002h @ fbach
+	cp	yh
+	push	af		;6097h @ fbaah
+	cp	yl
+	push	af		;6012h @ fba8h
+	ld	a, 0aah
+	sbc	a,xh
+	push	af		;4a06h @ fba6h
+	ld	a, 0aah
+	sbc	a,xl
+	push	af		;7a06h @ fba4h
+	ld	a, 0aah
+	sbc	a,yh
+	push	af		;fc93h @ fba2h
+	ld	a, 0aah
+	sbc	a,yl
+	push	af		;a282h @ fba0h
+	ld	a, 0aah
+	sub	xh
+	push	af		;4a06h @ fb9eh
+	ld	a, 0aah
+	sub	xl
+	push	af		;7a06h @ fb9ch
+	ld	a, 0aah
+	sub	yh
+	push	af		;fc93h @ fb9ah
+	ld	a, 0aah
+	sub	yl
+	push	af		;a382h @ fb98h
+	push	bc		;bcbch @ fb96h
+	push	de		;dedeh @ fb94h
+	push	hl		;aaaah @ fb92h
+	push	ix		;6030h @ fb90h
+;--------
+;	ld	sp,0fb80h
+;	ld	ix,04000h
+;	ld	iy,04100h
+;	xor	a
+;	set	0,(ix+0),a	;a0h @ 4000h read
+;				;a1h @ 4000h write
+;	push	af		;a140h @ fb7eh
+;	and	a
+;	scf
+;	set	1,(iy+0),b	;e0h @ 4100h read
+;				;e2h @ 4100h write
+;	set	2,(ix+1),c	;b0h @ 4001h read
+;				;b4h @ 4001h write
+;	set	3,(iy+1),d	;f0h @ 4101h read
+;				;f8h @ 4101h write
+;	set	4,(ix+2),e	;0ch @ 4002h read
+;				;1ch @ 4002h write
+;	set	5,(iy+2),h	;03h @ 4102h read
+;				;23h @ 4102h write
+;	set	6,(ix+3),l	;0dh @ 4003h read
+;				;4dh @ 4003h write
+;	set	7,(iy+3),a	;05h @ 4103h read
+;				;85h @ 4103h write
+;	push	af		;8501h @ fb7ch
+;	push	bc		;e2b4h @ fb7ah
+;	push	de		;f81ch @ fb78h
+;	push	hl		;234dh @ fb76h
+;--------
 	ld	hl, 0100h
 	jp	0c0h
 
 	org	1000h
 	db	0c7h, 0a2h, 080h, 001h, 001h, 001h, 001h, 001h
-	db	067h, 067h, 067h, 067h, 067h, 067h, 067h
+	db	067h, 067h, 067h, 067h, 067h, 067h, 067h, 066h
 
 	org	2000h
 	db	082h, 0abh, 078h, 078h, 060h, 060h, 078h, 060h
-	db	0f0h, 0f0h, 0f0h, 0f0h, 0f0h, 0f0h, 0f0h
+	db	0f0h, 0f0h, 0f0h, 0f0h, 0f0h, 0f0h, 0f0h, 0f0h
 
 	org	3000h
 	db	03ch, 055h, 055h, 0ffh, 0aah, 0aah, 0ffh, 0aah
 	db	0c5h, 0c5h, 0c5h, 0c4h, 0c5h, 0c5h, 0c5h, 02fh
-	db	0e3h
+	db	0e3h, 0c5h
+	
+;	org	4000h
+;	db	0a0h, 0b0h, 00ch, 00dh
+
+;	org	4100h
+;	db	0e0h, 0f0h, 003h, 005h
 
 	org	078cbh
 	db	02eh, 0c0h
@@ -1099,4 +1335,4 @@
 	dw	09b00h, 0b110h, 02401h, 01f01h
 	dw	00111h, 07702h, 08812h, 07303h
 	dw	06613h
-
+	end

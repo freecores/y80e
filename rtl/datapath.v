@@ -11,7 +11,7 @@ module datapath (addr_reg_in, carry_bit, dmar_reg, dout_io_reg, dout_mem_reg, in
                  data_in, di_ctl, dma_req, do_ctl, ex_af_pls, ex_bank_pls, ex_dehl_inst,
                  hflg_ctl, ief_ctl, imd_ctl, int_req, ivec_rd, ld_ctrl, ld_inst, ld_page,
                  nflg_ctl, nmi_req, page_sel, pc_sel, pflg_ctl, resetb, sflg_en, tflg_ctl,
-                 wait_st, wr_addr, zflg_en);
+                 wait_st, wr_addr, zflg_en, rreg_en);
 
   input         cflg_en;       /* carry flag control                                       */
   input         clearb;        /* master (testing) reset                                   */
@@ -27,6 +27,7 @@ module datapath (addr_reg_in, carry_bit, dmar_reg, dout_io_reg, dout_mem_reg, in
   input         ld_page;       /* load page register                                       */
   input         nmi_req;       /* nmi request                                              */
   input         resetb;        /* internal (user) reset                                    */
+  input         rreg_en;       /* update R register                                        */
   input         sflg_en;       /* sign flag control                                        */
   input         wait_st;       /* wait state identifier                                    */
   input         zflg_en;       /* zero flag control                                        */
@@ -91,7 +92,8 @@ module datapath (addr_reg_in, carry_bit, dmar_reg, dout_io_reg, dout_mem_reg, in
   wire         ld_m_dd, ld_m_ee, ld_m_hh, ld_m_ll;
   wire         ld_a_aa, ld_a_ff, ld_a_bb, ld_a_cc;
   wire         ld_a_dd, ld_a_ee, ld_a_hh, ld_a_ll;
-  wire         ld_sp,   ld_ix,   ld_iy;
+  wire         ld_sp;
+  wire         ld_ixh,  ld_ixl,  ld_iyh,  ld_iyl;
   wire         ld_ii,   ld_rr,   ld_tmp;
   wire         ld_dout_io, ld_dout_mem;                    /* load data out                */
   wire         ld_flag;                                    /* load flags                   */
@@ -305,8 +307,10 @@ module datapath (addr_reg_in, carry_bit, dmar_reg, dout_io_reg, dout_mem_reg, in
   assign ld_a_hh =   ld_regf && wr_addr[`WR_HH] &&  alt_bnk_reg;
   assign ld_a_ll =   ld_regf && wr_addr[`WR_LL] &&  alt_bnk_reg;
   assign ld_sp   =   ld_regf && wr_addr[`WR_SP];
-  assign ld_ix   =   ld_regf && wr_addr[`WR_IX];
-  assign ld_iy   =   ld_regf && wr_addr[`WR_IY];
+  assign ld_ixh  =   ld_regf && wr_addr[`WR_IXH];
+  assign ld_ixl  =   ld_regf && wr_addr[`WR_IXL];
+  assign ld_iyh  =   ld_regf && wr_addr[`WR_IYH];
+  assign ld_iyl  =   ld_regf && wr_addr[`WR_IYL];
   assign ld_ii   =   ld_regf && wr_addr[`WR_II];
   assign ld_rr   =   ld_regf && wr_addr[`WR_RR];
   assign ld_tmp  =   ld_regf && wr_addr[`WR_TMP];
@@ -325,6 +329,8 @@ module datapath (addr_reg_in, carry_bit, dmar_reg, dout_io_reg, dout_mem_reg, in
                       (wr_addr[`WR_BB] && !wr_addr[`WR_CC]) ||
                       (wr_addr[`WR_DD] && !wr_addr[`WR_EE]) ||
                       (wr_addr[`WR_HH] && !wr_addr[`WR_LL]) ||
+                      (wr_addr[`WR_IXH]&& !wr_addr[`WR_IXL]) ||
+                      (wr_addr[`WR_IYH]&& !wr_addr[`WR_IYL]) ||
                        wr_addr[`WR_II] || wr_addr[`WR_RR];
 
   /*****************************************************************************************/
@@ -370,8 +376,10 @@ module datapath (addr_reg_in, carry_bit, dmar_reg, dout_io_reg, dout_mem_reg, in
       if (ld_a_ee) a_ee_reg <= de_reg_in[7:0];
       if (ld_a_hh) a_hh_reg <= data_bus[15:8];
       if (ld_a_ll) a_ll_reg <= data_bus[7:0];
-      if (ld_ix)   ix_reg   <= data_bus;
-      if (ld_iy)   iy_reg   <= data_bus;
+      if (ld_ixh)  ix_reg[15:8] <= data_bus[15:8];
+      if (ld_ixl)  ix_reg[7:0]  <= data_bus[7:0];
+      if (ld_iyh)  iy_reg[15:8] <= data_bus[15:8];
+      if (ld_iyl)  iy_reg[7:0]  <= data_bus[7:0];
       end
     end
 
@@ -386,7 +394,12 @@ module datapath (addr_reg_in, carry_bit, dmar_reg, dout_io_reg, dout_mem_reg, in
     else begin
       if (ld_ii)  ii_reg  <= data_bus[15:8];
       if (ld_pc)  pc_reg  <= data_bus;
-      if (ld_rr)  rr_reg  <= data_bus[15:8];
+      if (ld_rr)
+        rr_reg  <= data_bus[15:8];
+`ifdef RREG_EMU
+      else
+        rr_reg[6:0] <= rr_reg[6:0] + {6'h0, rreg_en && !dmar_reg && !wait_st};
+`endif
       if (ld_sp)  sp_reg  <= data_bus;
       if (ld_tmp) tmp_reg <= (ivec_rd) ? {ii_reg, data_in} : data_bus;
       end

@@ -75,6 +75,7 @@ module y80_top (dma_ack, halt_tran, iack_tran, io_addr_out, io_data_out, io_read
   wire          rd_frst;                                   /* first clock of read          */
   wire          rd_nxt;                                    /* read trans next              */
   wire          reti_nxt, reti_tran;                       /* reti transaction             */
+  wire          rreg_en;                                   /* update refresh register      */
   wire          sflg_en;                                   /* sign flag control            */
   wire          sign_bit;                                  /* sign flag                    */
   wire          tflg_reg;                                  /* temporary flag               */
@@ -158,7 +159,7 @@ module y80_top (dma_ack, halt_tran, iack_tran, io_addr_out, io_data_out, io_read
                       .ld_inta(ld_inta), .ld_page(ld_page), .ld_wait(ld_wait),
                       .nflg_ctl(nflg_ctl), .output_inh(output_inh), .page_sel(page_sel),
                       .pc_sel(pc_sel), .pflg_ctl(pflg_ctl), .rd_frst(rd_frst),
-                      .rd_nxt(rd_nxt), .reti_nxt(reti_nxt), .sflg_en(sflg_en),
+                      .rd_nxt(rd_nxt), .reti_nxt(reti_nxt), .rreg_en(rreg_en), .sflg_en(sflg_en),
                       .state_nxt(state_nxt), .tflg_ctl(tflg_ctl), .tran_sel(tran_sel),
                       .wr_addr(wr_addr), .wr_frst(wr_frst), .zflg_en(zflg_en),
                       .carry_bit(carry_bit), .dmar_reg(dmar_reg), .inst_reg(inst_reg),
@@ -184,7 +185,7 @@ module y80_top (dma_ack, halt_tran, iack_tran, io_addr_out, io_data_out, io_read
                       .imd_ctl(imd_ctl), .int_req(int_req), .ivec_rd(ivec_rd),
                       .ld_ctrl(ld_ctrl), .ld_inst(ld_inst), .ld_page(ld_page),
                       .nflg_ctl(nflg_ctl), .nmi_req(nmi_req), .page_sel(page_sel),
-                      .pc_sel(pc_sel), .pflg_ctl(pflg_ctl), .resetb(resetb),
+                      .pc_sel(pc_sel), .pflg_ctl(pflg_ctl), .resetb(resetb), .rreg_en(rreg_en),
                       .sflg_en(sflg_en), .tflg_ctl(tflg_ctl), .wait_st(wait_st),
                       .wr_addr(wr_addr), .zflg_en(zflg_en) );
 

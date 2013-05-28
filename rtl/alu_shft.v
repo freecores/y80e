@@ -36,6 +36,7 @@ module alu_shft (shft_c, shft_out, alub_in, aluop_reg, carry_bit);
       `AOP_RRA:   shft_c = alub_in[0];
       `AOP_RRC,
       `AOP_RRCA:  shft_c = alub_in[0];
+      `AOP_SLL,
       `AOP_SLA:   shft_c = alub_in[7];
       `AOP_SRA:   shft_c = alub_in[0];
       `AOP_SRL:   shft_c = alub_in[0];
@@ -54,6 +55,7 @@ module alu_shft (shft_c, shft_out, alub_in, aluop_reg, carry_bit);
       `AOP_RRC,
       `AOP_RRCA:  shft_out = {alub_in[0], alub_in[7:1]};
       `AOP_SLA:   shft_out = {alub_in[6:0], 1'b0};
+      `AOP_SLL:   shft_out = {alub_in[6:0], 1'b1};
       `AOP_SRA:   shft_out = {alub_in[7], alub_in[7:1]};
       `AOP_SRL:   shft_out = {1'b0, alub_in[7:1]};
       default:    shft_out = 8'h00;

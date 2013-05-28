@@ -314,22 +314,22 @@
 	push	bc		;0305h @ fcf4h
 	push	de		;0709h @ fcf2h
 	push	hl		;0b0dh @ fcf0h
-	ld	(ix+0ffh), a	;  01h @ 6788h
-	ld	(ix+0feh), b	;  03h @ 6787h
-	ld	(ix+0fdh), c	;  05h @ 6786h
-	ld	(ix+0fch), d	;  07h @ 6785h
-	ld	(ix+0fbh), e	;  09h @ 6784h
-	ld	(ix+0fah), h	;  0bh @ 6783h
-	ld	(ix+0f9h), l	;  0dh @ 6782h
-	ld	(ix+0f8h), 0fh	;0fh @ 6781h
-	ld	(iy+0ffh), a	;  01h @ abcch
-	ld	(iy+0feh), b	;  03h @ abcbh
-	ld	(iy+0fdh), c	;  05h @ abcah
-	ld	(iy+0fch), d	;  07h @ abc9h
-	ld	(iy+0fbh), e	;  09h @ abc8h
-	ld	(iy+0fah), h	;  0bh @ abc7h
-	ld	(iy+0f9h), l	;  0dh @ abc6h
-	ld	(iy+0f8h), 0fh	;0fh @ abc5h
+	ld	(ix-001h), a	;  01h @ 6788h
+	ld	(ix-002h), b	;  03h @ 6787h
+	ld	(ix-003h), c	;  05h @ 6786h
+	ld	(ix-004h), d	;  07h @ 6785h
+	ld	(ix-005h), e	;  09h @ 6784h
+	ld	(ix-006h), h	;  0bh @ 6783h
+	ld	(ix-007h), l	;  0dh @ 6782h
+	ld	(ix-008h), 0fh	;0fh @ 6781h
+	ld	(iy-001h), a	;  01h @ abcch
+	ld	(iy-002h), b	;  03h @ abcbh
+	ld	(iy-003h), c	;  05h @ abcah
+	ld	(iy-004h), d	;  07h @ abc9h
+	ld	(iy-005h), e	;  09h @ abc8h
+	ld	(iy-006h), h	;  0bh @ abc7h
+	ld	(iy-007h), l	;  0dh @ abc6h
+	ld	(iy-008h), 0fh	;0fh @ abc5h
 	xor	a
 	ld	b, a
 	ld	c, a
@@ -378,7 +378,109 @@
 	di
 	ld	a, i
 	push	af		;5500h @ fcceh
+;-------------
+	xor	a
+	ld	sp, 0fc00h
+	ld	ix, 00000h
+	ld	iy, 0ffffh
+	ld	bc, 0aaaah
+	ld	de, 05555h
+	ld	hl, 02222h
+	ld	xh, 0a5h
+	push	ix		;a500h @ fbfeh
+	ld	xl, 057h
+	push	ix		;a557h @ fbfch
+	ld	yh, 0beh
+	push	iy		;beffh @ fbfah
+	ld	yl, 03dh
+	push	iy		;be3dh @ fbf8h
+	push	af		;0044h @ fbf6h
+	push	bc		;aaaah @ fbf4h
+	push	de		;5555h @ fbf2h
+	push	hl		;2222h @ fbf0h
+;
+	ld	a,xh
+	push	af		;a544h @ fbeeh
+	ld	a,xl
+	push	af		;5744h @ fbech
+	ld	a,yh
+	push	af		;be44h @ fbeah
+	ld	a,yl
+	push	af		;3d44h @ fbe8h
+;
+	ld	a,05h
+	ld	xl,a
+	ld	a,0feh
+	ld	yh,a
+	ld	a,0adh
+	ld	xh,a
+	ld	a,7eh
+	ld	yl,a
+	push	ix		;ad05h @ fbe6h
+	push	iy		;fe7eh @ fbe4h
+	push	af		;7e44h @ fbe2h
+;
+	ld	b,xh
+	ld	c,xl
+	ld	xl,b
+	ld	xh,c
+	push	bc		;ad05h @ fbe0h
+	push	ix		;05adh @ fbdeh
+	ld	b,yh
+	ld	c,yl
+	ld	yl,b
+	ld	yh,c
+	push	bc		;fe7eh @ fbdch
+	push	iy		;7efeh @ fbdah
+	ld	b,xl
+	ld	c,xh
+	ld	xh,b
+	ld	xl,c
+	push	bc		;ad05h @ fbd8h
+	push	ix		;ad05h @ fbd6h
+	ld	b,yl
+	ld	c,yh
+	ld	yh,b
+	ld	yl,c
+	push	bc		;fe7eh @ fbd4h
+	push	iy		;fe7eh @ fbd2h
+	push	af		;7e44h @ fbd0h
 
+	ld	e,xh
+	ld	d,xl
+	ld	xl,e
+	ld	xh,d
+	push	de		;05adh @ fbceh
+	push	ix		;05adh @ fbcch
+	ld	d,yh
+	ld	e,yl
+	ld	yl,d
+	ld	yh,e
+	push	de		;fe7eh @ fbcah
+	push	iy		;7efeh @ fbc8h
+	ld	e,xl
+	ld	d,xh
+	ld	xh,e
+	ld	xl,d
+	push	de		;05adh @ fbc6h
+	push	ix		;ad05h @ fbc4h
+	ld	d,yl
+	ld	e,yh
+	ld	yh,d
+	ld	yl,e
+	push	de		;fe7eh @ fbc2h
+	push	iy		;fe7eh @ fbc0h
+	ld	a,xl
+	ld	xl,xh
+	ld	xh,a
+	push	ix		;05adh @ fbbeh
+	ld	a,yl
+	ld	yl,yh
+	ld	yh,a
+	push	iy		;7efeh @ fbbch
+	push	bc		;fe7eh @ fbbah
+	push	hl		;2222h @ fbb8h
+;-------------
 	ld	hl, 0100h	;init hl for next pattern
 	jp	0c0h
 
@@ -434,3 +536,4 @@
 	dw	06789h
 	dw	0abcdh
 
+	end

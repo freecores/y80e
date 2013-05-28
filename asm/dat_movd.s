@@ -35,6 +35,17 @@
 	org	0cc30h
 	dw	0cc34h, 00f00h, 0ffffh, 0ffffh	;cc30h
 
+	org	0fbb8h
+	dw	02222h, 0fe7eh, 07efeh, 005adh	;fbb8h
+	dw	0fe7eh, 0fe7eh, 0ad05h, 005adh	;fbc0h
+	dw	07efeh, 0fe7eh, 005adh, 005adh	;fbc8h
+	dw	07e44h, 0fe7eh, 0fe7eh, 0ad05h	;fbd0h
+	dw	0ad05h, 07efeh, 0fe7eh, 005adh	;fbd8h
+	dw	0ad05h, 07e44h, 0fe7eh, 0ad05h	;fbe0h
+	dw	03d44h, 0be44h, 05744h, 0a544h	;fbe8h
+	dw	02222h, 05555h, 0aaaah, 00044h	;fbf0h
+	dw	0be3dh, 0beffh, 0a557h, 0a500h	;fbf8h
+
 	org	0fcc8h
 	dw	0ffffh, 0ffffh, 0ffffh, 05500h	;fcc8h
 	dw	05504h, 05500h, 00044h, 00000h	;fcd0h
@@ -72,3 +83,4 @@
 	dw	00102h, 00f44h, 05555h, 0aaaah	;fff0h
 	dw	01020h, 00408h, 00102h, 00044h	;fff8h
 
+	end

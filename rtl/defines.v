@@ -171,41 +171,47 @@
   /* write register control: wr_sel - unencoded                                            */
   /*                                                                                       */
   /*****************************************************************************************/
-  `define WREG_IDX 14
-  `define WREG_BB    15'b110000000000000         //Select B to write
-  `define WREG_BC    15'b111000000000000         //Select BC to write
-  `define WREG_CC    15'b101000000000000         //Select C to write
-  `define WREG_DD    15'b100100000000000         //Select D to write
-  `define WREG_DE    15'b100110000000000         //Select DE to write
-  `define WREG_EE    15'b100010000000000         //Select E to write
-  `define WREG_HH    15'b100001000000000         //Select H to write
-  `define WREG_HL    15'b100001100000000         //Select HL to write
-  `define WREG_LL    15'b100000100000000         //Select L to write
-  `define WREG_DEHL  15'b100111100000000         //Select DEHL to write (ex case)
-  `define WREG_AA    15'b100000010000000         //Select A to write
-  `define WREG_AF    15'b100000011000000         //Select A and F to write
-  `define WREG_FF    15'b100000001000000         //Select F to write
-  `define WREG_SP    15'b100000000100000         //Select SP to write
-  `define WREG_TMP   15'b100000000010000         //Select TMP register to write
-  `define WREG_IX    15'b100000000001000         //Select IX to write
-  `define WREG_IY    15'b100000000000100         //Select IY to write
-  `define WREG_II    15'b100000000000010         //Select I register to write
-  `define WREG_RR    15'b100000000000001         //Select R register to write
-  `define WREG_NUL   15'b000000000000000         //No register write
+  `define WREG_IDX 16
+  `define WREG_BB    17'b11000000000000000       //Select B to write
+  `define WREG_BC    17'b11100000000000000       //Select BC to write
+  `define WREG_CC    17'b10100000000000000       //Select C to write
+  `define WREG_DD    17'b10010000000000000       //Select D to write
+  `define WREG_DE    17'b10011000000000000       //Select DE to write
+  `define WREG_EE    17'b10001000000000000       //Select E to write
+  `define WREG_HH    17'b10000100000000000       //Select H to write
+  `define WREG_HL    17'b10000110000000000       //Select HL to write
+  `define WREG_LL    17'b10000010000000000       //Select L to write
+  `define WREG_DEHL  17'b10011110000000000       //Select DEHL to write (ex case)
+  `define WREG_AA    17'b10000001000000000       //Select A to write
+  `define WREG_AF    17'b10000001100000000       //Select A and F to write
+  `define WREG_FF    17'b10000000100000000       //Select F to write
+  `define WREG_SP    17'b10000000010000000       //Select SP to write
+  `define WREG_TMP   17'b10000000001000000       //Select TMP register to write
+  `define WREG_IXH   17'b10000000000100000       //Select IXH to write
+  `define WREG_IX    17'b10000000000110000       //Select IX to write
+  `define WREG_IXL   17'b10000000000010000       //Select IXL to write
+  `define WREG_IYH   17'b10000000000001000       //Select IYH to write
+  `define WREG_IY    17'b10000000000001100       //Select IY to write
+  `define WREG_IYL   17'b10000000000000100       //Select IYL to write
+  `define WREG_II    17'b10000000000000010       //Select I register to write
+  `define WREG_RR    17'b10000000000000001       //Select R register to write
+  `define WREG_NUL   17'b00000000000000000       //No register write
 
-  `define WR_REG     14                //register write
-  `define WR_BB      13                //BB register index
-  `define WR_CC      12                //CC register index
-  `define WR_DD      11                //DD register index
-  `define WR_EE      10                //EE register index
-  `define WR_HH       9                //HH register index
-  `define WR_LL       8                //LL register index
-  `define WR_AA       7                //AA register index
-  `define WR_FF       6                //FF register index
-  `define WR_SP       5                //SP register index
-  `define WR_TMP      4                //TMP register index
-  `define WR_IX       3                //IX register index
-  `define WR_IY       2                //IY register index
+  `define WR_REG     16                //register write
+  `define WR_BB      15                //BB register index
+  `define WR_CC      14                //CC register index
+  `define WR_DD      13                //DD register index
+  `define WR_EE      12                //EE register index
+  `define WR_HH      11                //HH register index
+  `define WR_LL      10                //LL register index
+  `define WR_AA       9                //AA register index
+  `define WR_FF       8                //FF register index
+  `define WR_SP       7                //SP register index
+  `define WR_TMP      6                //TMP register index
+  `define WR_IXH      5                //IXH register index
+  `define WR_IXL      4                //IXL register index
+  `define WR_IYH      3                //IYH register index
+  `define WR_IYL      2                //IYL register index
   `define WR_II       1                //II register index
   `define WR_RR       0                //RR register index
 
@@ -334,6 +340,7 @@
   `define ALUOP_RRC    8'b10001000     //ALU shft: rotate right circular
   `define ALUOP_RRCA   8'b10001001     //ALU shft: rotate right circular acc
   `define ALUOP_SLA    8'b10010000     //ALU shft: shift left arithmetic
+  `define ALUOP_SLL    8'b10011000     //ALU shft: shift left logical (x = (x << 1) | 1)
   `define ALUOP_SRL    8'b10100000     //ALU shft: shift right logical
   `define ALUOP_SRA    8'b10101000     //ALU shft: shift right arithmetic
 
@@ -376,6 +383,7 @@
   `define AOP_RRC      6'b001000       //ALU shft: rotate right circular
   `define AOP_RRCA     6'b001001       //ALU shft: rotate right circular acc
   `define AOP_SLA      6'b010000       //ALU shft: shift left arithmetic
+  `define AOP_SLL      6'b011000       //ALU shft: shift left logical
   `define AOP_SRL      6'b100000       //ALU shft: shift right logical
   `define AOP_SRA      6'b101000       //ALU shft: shift right arithmetic
 
